@@ -12,5 +12,6 @@ try {
     \Illuminate\Support\Facades\DB::unprepared($sql);
     echo "✅ Database successfully imported!\n";
 } catch (\Exception $e) {
-    echo "❌ Error importing database: " . $e->getMessage() . "\n";
+    $msg = substr($e->getMessage(), 0, 500);
+    echo "❌ Error importing database: " . $msg . "\n";
 }
