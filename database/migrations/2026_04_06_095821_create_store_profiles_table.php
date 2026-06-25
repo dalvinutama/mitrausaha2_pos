@@ -17,7 +17,7 @@ return new class extends Migration
             // Profil Utama Toko
             $table->string('nama_toko')->default('Mitra Usaha 2 Pontianak');
             $table->string('tagline')->default('Distributor & Retail Bahan Bangunan Terlengkap');
-            $table->text('alamat')->default('Jl. Contoh Pembangunan No. 123, Pontianak, Kalimantan Barat');
+            $table->text('alamat')->nullable();
             
             // Kontak
             $table->string('telepon')->default('(0561) 123456');
