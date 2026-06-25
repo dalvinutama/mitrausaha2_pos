@@ -88,7 +88,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/stok_masuk', [StokMasukController::class, 'index'])->name('stok_masuk');
         Route::get('/get-pos-by-supplier/{supplier_id}', [StokMasukController::class, 'getPosBySupplier']);
         Route::get('/get-po-items/{id}', [StokMasukController::class, 'getPoItems']);
-        Route::get('/purchase_order', [PurchaseOrderController::class, 'index'])->name('purchase_order');
+
         Route::get('/stock_opname', [StockOpnameController::class, 'index'])->name('stock_opname'); // Fitur Baru
     });
 
