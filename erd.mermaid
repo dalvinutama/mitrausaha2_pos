@@ -1,0 +1,219 @@
+erDiagram
+    PEMASOK ||--o{ TRANSAKSI : memiliki
+    KATEGORI ||--o{ PRODUK : memiliki
+    PRODUK ||--o{ ITEM_TRANSAKSI : tercantum
+    PRODUK ||--o{ DETAIL_STOK_OPNAME : dicatat
+    PENGGUNA ||--o{ TRANSAKSI : mencatat
+    TRANSAKSI ||--|{ ITEM_TRANSAKSI : terdiri
+    TRANSAKSI ||--o{ PEMBAYARAN : dibayar
+    PENGGUNA ||--o{ PEMBAYARAN : membayar
+    PENGGUNA ||--o{ STOK_OPNAME : membuat
+    PENGGUNA ||--o{ STOK_OPNAME : menyetujui
+    STOK_OPNAME ||--|{ DETAIL_STOK_OPNAME : terdiri
+    PERCAKAPAN ||--o{ PESAN : berisi
+    PERCAKAPAN ||--o{ ANGGOTA_PERCAKAPAN : memiliki
+    PENGGUNA ||--o{ ANGGOTA_PERCAKAPAN : bergabung
+    PENGGUNA ||--o{ PESAN : mengirim
+    PESAN ||--o{ LAMPIRAN_PESAN : melampirkan
+    PESAN ||--o{ BACA_PESAN : dibaca
+    PENGGUNA ||--o{ BACA_PESAN : menandai
+    PENGGUNA ||--o{ LOG_AUDIT : merekam
+
+    PEMASOK {
+        bigint id PK
+        varchar nama_pemasok
+        text alamat
+        varchar kontak
+        varchar no_hp
+        varchar email
+        varchar kategori_suplai
+        varchar termin_default
+        varchar nama_bank
+        varchar no_rekening
+        text catatan
+        enum status
+    }
+
+    KATEGORI {
+        bigint id PK
+        varchar prefix_sku
+        varchar nama_kategori
+        text deskripsi
+    }
+
+    PRODUK {
+        bigint id PK
+        bigint kategori_id FK
+        varchar sku
+        varchar barcode
+        varchar nama_barang
+        int stok
+        int min_stok
+        int waktu_tunggu
+        enum tipe_stok_aman
+        int stok_aman
+        int titik_pesan_ulang
+        int eoq
+        bigint harga_beli
+        bigint harga_jual
+        varchar satuan
+    }
+
+    SATUAN {
+        bigint id PK
+        varchar nama_satuan
+    }
+
+    PENGGUNA {
+        bigint id PK
+        varchar nama
+        varchar email
+        varchar no_wa
+        text alamat
+        enum role
+        timestamp verifikasi_email
+        varchar password
+    }
+
+    TRANSAKSI {
+        bigint id PK
+        varchar no_transaksi
+        enum jenis
+        date tanggal
+        bigint pemasok_id FK
+        bigint pengguna_id FK
+        varchar no_referensi
+        varchar tujuan
+        varchar kategori_keluar
+        date estimasi_datang
+        varchar tipe_bayar
+        enum status_bayar
+        varchar info_kirim
+        decimal total
+        decimal diskon
+        text catatan
+        enum status
+    }
+
+    ITEM_TRANSAKSI {
+        bigint id PK
+        bigint transaksi_id FK
+        bigint produk_id FK
+        int qty
+        int qty_diterima
+        int qty_rusak
+        decimal harga_satuan
+        decimal diskon
+        decimal subtotal
+        varchar spesifikasi
+        date tgl_expired
+    }
+
+    PEMBAYARAN {
+        bigint id PK
+        bigint transaksi_id FK
+        bigint pengguna_id FK
+        decimal nominal
+        enum metode
+        varchar bukti
+        date tanggal_bayar
+    }
+
+    STOK_OPNAME {
+        bigint id PK
+        varchar no_opname
+        date tanggal
+        varchar periode
+        bigint dibuat_oleh FK
+        bigint disetujui_oleh FK
+        enum status
+        text catatan
+    }
+
+    DETAIL_STOK_OPNAME {
+        bigint id PK
+        bigint stok_opname_id FK
+        bigint produk_id FK
+        int stok_sistem
+        int stok_fisik
+        int selisih
+        bigint harga_pokok
+        bigint nilai_selisih
+        varchar keterangan
+    }
+
+    PERCAKAPAN {
+        bigint id PK
+        varchar nama
+        bool grup
+        varchar icon
+    }
+
+    ANGGOTA_PERCAKAPAN {
+        bigint id PK
+        bigint percakapan_id FK
+        bigint pengguna_id FK
+        enum role
+    }
+
+    PESAN {
+        bigint id PK
+        bigint percakapan_id FK
+        bigint pengirim_id FK
+        text konten
+        enum type
+        bigint balas_id FK
+        bool disematkan
+    }
+
+    LAMPIRAN_PESAN {
+        bigint id PK
+        bigint pesan_id FK
+        varchar file_path
+        varchar file_type
+        varchar file_name
+        int file_size
+    }
+
+    BACA_PESAN {
+        bigint id PK
+        bigint pesan_id FK
+        bigint pengguna_id FK
+    }
+
+    PROFIL_TOKO {
+        bigint id PK
+        varchar nama_toko
+        varchar tagline
+        text alamat
+        varchar telepon
+        varchar email
+        varchar kota_ttd
+        varchar kepala_gudang
+        bool aktif
+    }
+
+    PENGATURAN {
+        bigint id PK
+        varchar nama_toko
+        varchar no_telp
+        text alamat
+        varchar logo
+        bool aktif
+    }
+
+    KATEGORI_KELUAR {
+        bigint id PK
+        varchar nama_kategori
+    }
+
+    LOG_AUDIT {
+        bigint id PK
+        bigint pengguna_id FK
+        varchar aksi
+        varchar modul
+        text deskripsi
+        json data_lama
+        json data_baru
+        bigint record_id
+    }

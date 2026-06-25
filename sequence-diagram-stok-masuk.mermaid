@@ -1,0 +1,64 @@
+sequenceDiagram
+    autonumber
+    actor Petugas
+    participant Halaman as HalamanStokMasuk
+    participant Controller as StokMasukController
+    participant Transaksi as Transaction
+    participant Item as TransactionItem
+    participant Produk as Product
+    participant Pembayaran as TransactionPayment
+
+    Petugas->>+Halaman: Buka halaman stok masuk
+    Halaman->>+Controller: index()
+    Controller-->>Halaman: Kirim data supplier & produk
+    Halaman-->>Petugas: Tampilkan form & riwayat transaksi
+
+    Petugas->>+Halaman: Pilih supplier, produk, qty, harga, tipe bayar
+    Petugas->>Halaman: Klik "Simpan"
+    Halaman->>+Controller: store(request)
+
+    Controller->>Controller: Generate nomor BM-YYYYMMDD-XXXX
+    Controller->>+Supplier: Ambil data supplier
+    Supplier-->>-Controller: Data supplier
+
+    Controller->>+Transaksi: Buat header (jenis=masuk, status=selesai)
+    Transaksi-->>-Controller: Header tersimpan
+
+    loop Setiap produk yang dipilih
+        Controller->>+Produk: findOrFail(id)
+        Produk-->>-Controller: Data produk
+        Controller->>+Item: Simpan detail transaksi
+        Item-->>-Controller: Item tersimpan
+
+        alt Terkait PO
+            Controller->>Item: Update qty_diterima PO
+        end
+
+        Controller->>+Produk: Tambah stok (stok + qty_bagus)
+        Produk-->>-Controller: Stok diperbarui
+
+        alt Ada barang rusak (qty_rusak > 0)
+            Controller->>+Transaksi: Buat nota retur (RTR-...)
+            Controller->>+Item: Simpan item retur
+            Controller->>Produk: Stok tidak ditambah (qty rusak)
+        end
+    end
+
+    alt Tipe bayar tunai
+        Controller->>+Pembayaran: Catat pembayaran lunas
+        Pembayaran-->>-Controller: Pembayaran tersimpan
+    else Tipe bayar tempo
+        alt Ada DP
+            Controller->>+Pembayaran: Catat DP
+            Pembayaran-->>-Controller: DP tersimpan
+        end
+        Controller->>Transaksi: Catat jatuh tempo di catatan
+    end
+
+    alt Terkait PO & semua item terpenuhi
+        Controller->>Transaksi: Update status PO = selesai
+    end
+
+    Controller->>Controller: Dispatch event StockInCreated
+    Controller-->>Halaman: Redirect sukses
+    Halaman-->>Petugas: Notifikasi stok bertambah otomatis

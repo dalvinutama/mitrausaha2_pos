@@ -1,0 +1,30 @@
+sequenceDiagram
+    autonumber
+    actor Pengguna
+    participant Halaman as HalamanPersediaan
+    participant Controller as PersediaanController
+    participant Produk as Product
+    participant Kategori as Kategori
+
+    Pengguna->>+Halaman: Buka halaman persediaan
+    Halaman->>+Controller: index()
+
+    Controller->>+Produk: Ambil semua produk (dengan kategori)
+    Produk-->>-Controller: Data produk & stok
+    Controller->>+Kategori: Ambil semua kategori
+    Kategori-->>-Controller: Data kategori
+    Controller->>Controller: Hitung total produk & total stok
+
+    Controller-->>Halaman: Kirim data produk, kategori, satuan
+    Halaman-->>Pengguna: Tampilkan daftar barang & kartu ringkasan
+
+    Pengguna->>Halaman: Ketik kata kunci pada kolom pencarian
+    Halaman->>Halaman: Filter produk berdasarkan nama/SKU/barcode
+    Halaman-->>Pengguna: Tampilkan hasil filter
+
+    Pengguna->>Halaman: Pilih kategori pada dropdown filter
+    Halaman->>Halaman: Filter produk berdasarkan kategori
+    Halaman-->>Pengguna: Tampilkan produk sesuai kategori
+
+    Pengguna->>Halaman: Klik nama barang
+    Halaman-->>Pengguna: Tampilkan detail stok & informasi barang

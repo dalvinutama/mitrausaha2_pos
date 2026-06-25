@@ -1,0 +1,50 @@
+sequenceDiagram
+    autonumber
+    actor Pengguna
+    participant Halaman as HalamanAuditLog
+    participant Controller as SettingController
+    participant Log as AuditLog
+
+    Pengguna->>+Halaman: Buka halaman audit log
+    Halaman->>+Controller: auditLog()
+    Controller->>+Log: Ambil semua log (dengan user, urut terbaru)
+    Log-->>-Controller: Data log
+    Controller-->>Halaman: Kirim log (15 per halaman)
+    Halaman-->>Pengguna: Tampilkan tabel riwayat aktivitas
+
+    rect rgb(235, 245, 255)
+        Note over Pengguna,Log: Filter Log
+
+        Pengguna->>Halaman: Pilih filter modul
+        Pengguna->>Halaman: Masukkan nama aktor
+        Pengguna->>Halaman: Pilih tanggal
+        Pengguna->>Halaman: Klik "Terapkan Filter"
+        Halaman->>+Controller: auditLog(request)
+        Controller->>+Log: Filter berdasarkan modul, aktor, tanggal
+        Log-->>-Controller: Data log terfilter
+        Controller-->>Halaman: Hasil filter
+        Halaman-->>Pengguna: Tampilkan log sesuai filter
+
+        Pengguna->>Halaman: Klik "Reset"
+        Halaman->>+Controller: auditLog()
+        Controller-->>Halaman: Semua log
+        Halaman-->>Pengguna: Tampilkan semua log
+    end
+
+    rect rgb(255, 250, 235)
+        Note over Pengguna,Log: Lihat Detail Perubahan
+
+        Pengguna->>Halaman: Klik ikon "Detail" pada baris log
+        Halaman-->>Pengguna: Tampilkan modal perbandingan data
+
+        alt Aksi CREATE
+            Halaman-->>Pengguna: Data lama kosong, data baru (hijau)
+        else Aksi UPDATE
+            Halaman-->>Pengguna: Data lama (merah) vs data baru (hijau)
+        else Aksi DELETE
+            Halaman-->>Pengguna: Data lama (merah), data baru kosong
+        end
+
+        Pengguna->>Halaman: Klik "Tutup"
+        Halaman-->>Pengguna: Modal tertutup
+    end

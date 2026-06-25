@@ -1,0 +1,183 @@
+%%{init: {"theme": "default", "themeVariables": {"classPadding": 12, "nodeMargin": 50}}}%%
+classDiagram
+    direction TB
+
+    %% 1. KELAS MASTER (ATAS)
+    class Supplier {
+        +bigint id
+        -varchar nama_supplier
+        -text alamat
+        -varchar nama_pic
+        -varchar no_hp
+        -varchar email
+        -varchar kategori_suplai
+        -varchar termin_default
+        -varchar nama_bank
+        -varchar no_rekening
+        -text catatan
+        -varchar status
+        +tambahSupplier()
+        +ubahSupplier()
+        +nonaktifkanSupplier()
+    }
+
+    class User {
+        +bigint id
+        -varchar name
+        -varchar email
+        -enum role
+        -timestamp email_verified_at
+        -varchar password
+        +login()
+        +logout()
+        +updateProfile()
+    }
+
+    class Kategori {
+        +bigint id
+        -varchar prefix_sku
+        -varchar nama_kategori
+        -text deskripsi
+        +tambahKategori()
+        +ubahKategori()
+        +hapusKategori()
+    }
+
+    class StoreProfile {
+        +bigint id
+        -varchar nama_toko
+        -varchar tagline
+        -text alamat
+        -varchar telepon
+        -varchar email
+        -varchar kota_ttd
+        -varchar nama_kepala_gudang
+        -tinyint is_active
+        +updateProfil()
+    }
+
+    class KategoriOutbound {
+        +bigint id
+        -varchar nama_kategori
+        +tambahKategori()
+    }
+
+    %% 2. KELAS TRANSAKSI & PRODUK (TENGAH)
+    class Transaction {
+        +bigint id
+        -varchar no_transaksi
+        -enum jenis_transaksi
+        -date tanggal
+        -bigint supplier_id
+        -bigint user_id
+        -varchar no_referensi
+        -varchar tujuan
+        -varchar kategori_keluar
+        -date estimasi_datang
+        -varchar tipe_pembayaran
+        -varchar info_pengiriman
+        -decimal total_nilai
+        -text catatan
+        -enum status
+        +buatTransaksi()
+        +updateStatus()
+        +hitungTotal()
+    }
+
+    class Product {
+        +bigint id
+        -bigint kategori_id
+        -varchar sku
+        -varchar barcode
+        -varchar nama_barang
+        -int stok
+        -int lead_time_hari
+        -enum tipe_safety_stock
+        -int safety_stock
+        -int reorder_point
+        -bigint harga_beli
+        -bigint harga_jual
+        -varchar satuan
+        +checkStok()
+        +updateStok()
+        +generateSKU()
+    }
+
+    class StockOpname {
+        +bigint id
+        -varchar no_opname
+        -date tanggal
+        -varchar periode
+        -bigint dibuat_oleh
+        -bigint disetujui_oleh
+        -enum status
+        -text catatan
+        +buatOpname()
+        +setujuiOpname()
+        +tolakOpname()
+    }
+
+    class Message {
+        +bigint id
+        -bigint from_user_id
+        -text content
+        +kirimPesan()
+        +hapusPesan()
+    }
+
+    class TransactionItem {
+        +bigint id
+        -bigint transaction_id
+        -bigint product_id
+        -int qty
+        -int qty_rusak
+        -decimal harga_satuan
+        -decimal diskon
+        -decimal subtotal
+        -varchar spesifikasi
+        -date tgl_expired
+        +tambahItem()
+        +hitungSubtotal()
+    }
+
+    class StockOpnameDetail {
+        +bigint id
+        -bigint stock_opname_id
+        -bigint product_id
+        -int stok_sistem
+        -int stok_fisik
+        -int selisih
+        -bigint harga_pokok_snapshot
+        -bigint nilai_selisih
+        -varchar keterangan
+        +tambahDetail()
+        +hitungSelisih()
+    }
+
+    class MessageRead {
+        +bigint id
+        -bigint message_id
+        -bigint user_id
+        +tandaiDibaca()
+    }
+
+    %% 3. RELASI
+
+    %% Blok Kiri (Supplier, User, Transaksi)
+    Supplier "1" -- "0..*" Transaction
+    User "1" -- "0..*" Transaction
+    Transaction "1" *-- "1..*" TransactionItem
+
+    %% Blok Tengah (Kategori & Produk)
+    Kategori "1" -- "0..*" Product
+    Product "1" -- "0..*" TransactionItem
+    Product "1" -- "0..*" StockOpnameDetail
+
+    %% Blok Kanan (Stock Opname & Pesan)
+    User "1" -- "0..*" StockOpname : dibuat
+    User "1" -- "0..*" StockOpname : disetujui
+    StockOpname "1" *-- "1..*" StockOpnameDetail
+
+    User "1" -- "0..*" Message
+    User "1" -- "0..*" MessageRead
+    Message "1" *-- "0..*" MessageRead

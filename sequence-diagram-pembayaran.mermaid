@@ -1,0 +1,77 @@
+sequenceDiagram
+    autonumber
+    actor Pengguna
+    participant Halaman as HalamanHutang
+    participant Controller as HutangController
+    participant Transaksi as Transaction
+    participant Pembayaran as TransactionPayment
+
+    Pengguna->>+Halaman: Buka halaman hutang
+    Halaman->>+Controller: index()
+    Controller->>+Transaksi: Cari hutang aktif (tempo, belum lunas)
+    Controller->>+Transaksi: Cari riwayat lunas
+    Transaksi-->>-Controller: Data hutang & pembayaran
+    Controller-->>Halaman: Kirim data hutang & riwayat
+    Halaman-->>Pengguna: Tampilkan daftar hutang aktif & lunas
+
+    rect rgb(235, 245, 255)
+        Note over Pengguna,Halaman: Bayar Cicilan
+
+        Pengguna->>Halaman: Klik "Bayar" pada hutang tertentu
+        Halaman-->>Pengguna: Tampilkan modal form pembayaran
+        Pengguna->>Halaman: Masukkan nominal, pilih metode, upload bukti
+        Pengguna->>Halaman: Klik "Bayar"
+        Halaman->>+Controller: bayarCicilan(request, id)
+
+        Controller->>+Transaksi: Hitung total bayar & sisa hutang
+        Transaksi-->>-Controller: Sisa hutang
+
+        alt Nominal > sisa hutang
+            Controller-->>Halaman: Error nominal melebihi sisa
+            Halaman-->>Pengguna: Tampilkan pesan error
+        else Nominal <= sisa hutang
+            Controller->>Controller: Upload bukti pembayaran
+            Controller->>+Pembayaran: Simpan riwayat pembayaran
+            Pembayaran-->>-Controller: Pembayaran tersimpan
+
+            alt Total bayar >= total hutang
+                Controller->>+Transaksi: Update status_pembayaran = lunas
+                Controller->>+Transaksi: Update catatan [LUNAS]
+                Transaksi-->>-Controller: Status diperbarui
+            end
+
+            Controller-->>Halaman: Redirect sukses
+            Halaman-->>Pengguna: Tampilkan notifikasi sukses
+        end
+    end
+
+    rect rgb(255, 240, 240)
+        Note over Pengguna,Halaman: Cetak Faktur Pembayaran
+
+        Pengguna->>Halaman: Klik "Cetak" pada riwayat pembayaran
+        Halaman->>+Controller: printPayment(id)
+        Controller->>+Pembayaran: Ambil data pembayaran & relasi
+        Pembayaran-->>-Controller: Data pembayaran
+        Controller-->>Halaman: Tampilkan halaman cetak PDF
+        Halaman-->>Pengguna: Tampilkan faktur pembayaran siap cetak
+    end
+
+    rect rgb(255, 235, 235)
+        Note over Pengguna,Halaman: Batalkan Pembayaran (Owner Only)
+
+        Pengguna->>Halaman: Klik "Batalkan" pada riwayat pembayaran
+        Halaman->>+Controller: batalkanPembayaran(id)
+
+        alt Bukan Owner
+            Controller-->>Halaman: Error: hanya owner
+            Halaman-->>Pengguna: Tampilkan pesan error
+        else Owner
+            Controller->>Controller: Hapus file bukti pembayaran
+            Controller->>+Pembayaran: Hapus riwayat pembayaran
+            Pembayaran-->>-Controller: Riwayat terhapus
+            Controller->>+Transaksi: Cek status & kembalikan ke belum_lunas
+            Transaksi-->>-Controller: Status diperbarui
+            Controller-->>Halaman: Redirect sukses
+            Halaman-->>Pengguna: Tampilkan notifikasi pembatalan
+        end
+    end

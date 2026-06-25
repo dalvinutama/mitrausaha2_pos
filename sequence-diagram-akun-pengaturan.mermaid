@@ -1,0 +1,76 @@
+sequenceDiagram
+    autonumber
+    actor Pengguna
+    participant Halaman as HalamanPengaturan
+    participant Controller as UserSettingController
+    participant Akun as User
+    participant Profil as StoreProfile
+
+    rect rgb(235, 245, 255)
+        Note over Pengguna,Profil: Kelola Akun Pengguna
+
+        Pengguna->>Halaman: Buka halaman pengguna
+        Halaman->>+Controller: index()
+        Controller->>+Akun: Ambil semua pengguna
+        Akun-->>-Controller: Data pengguna
+        Controller-->>Halaman: Kirim data pengguna
+        Halaman-->>Pengguna: Tampilkan daftar akun
+
+        Pengguna->>Halaman: Klik "Tambah Akun"
+        Halaman-->>Pengguna: Form tambah akun
+        Pengguna->>Halaman: Isi nama, email, role, password
+        Pengguna->>Halaman: Klik "Simpan"
+        Halaman->>+Controller: store(request)
+        alt Admin membuat Owner
+            Controller-->>Halaman: Error: akses ditolak
+            Halaman-->>Pengguna: Tampilkan pesan error
+        else
+            Controller->>+Akun: Simpan akun baru
+            Akun-->>-Controller: Akun tersimpan
+            Controller-->>Halaman: Redirect sukses
+            Halaman-->>Pengguna: Notifikasi sukses
+        end
+
+        Pengguna->>Halaman: Klik "Edit" pada akun
+        Halaman-->>Pengguna: Form edit akun
+        Pengguna->>Halaman: Ubah data & klik "Simpan"
+        Halaman->>+Controller: update(request, id)
+        alt Admin edit Owner
+            Controller-->>Halaman: Error: akses ditolak
+        else
+            Controller->>Akun: Perbarui data
+            Akun-->>Controller: Data diperbarui
+            Controller-->>Halaman: Redirect sukses
+        end
+
+        Pengguna->>Halaman: Klik "Hapus" pada akun
+        Halaman->>+Controller: destroy(id)
+        alt Hapus akun sendiri
+            Controller-->>Halaman: Error: tidak bisa hapus sendiri
+        else Admin hapus Owner
+            Controller-->>Halaman: Error: akses ditolak
+        else
+            Controller->>Akun: Hapus akun
+            Akun-->>Controller: Akun terhapus
+            Controller-->>Halaman: Redirect sukses
+        end
+    end
+
+    rect rgb(255, 250, 235)
+        Note over Pengguna,Profil: Kelola Pengaturan Toko
+
+        Pengguna->>Halaman: Buka halaman pengaturan toko
+        Halaman->>+Controller: index()
+        Controller->>+Profil: Ambil profil toko
+        Profil-->>-Controller: Data profil
+        Controller-->>Halaman: Kirim profil & pengaturan
+        Halaman-->>Pengguna: Tampilkan form pengaturan
+
+        Pengguna->>Halaman: Ubah nama, tagline, alamat, logo
+        Pengguna->>Halaman: Klik "Simpan"
+        Halaman->>+Controller: updateAplikasi(request)
+        Controller->>Controller: Upload logo (jika ada)
+        Controller->>Controller: Simpan ke config/aplikasi.php
+        Controller-->>Halaman: Redirect sukses
+        Halaman-->>Pengguna: Notifikasi sukses
+    end

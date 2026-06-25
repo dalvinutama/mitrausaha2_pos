@@ -1,0 +1,180 @@
+%%{init: {"theme": "default", "themeVariables": {"classPadding": 10, "nodeMargin": 12}}}%%
+classDiagram
+    direction LR
+
+    class Supplier {
+        +bigint id
+        -varchar nama_supplier
+        -text alamat
+        -varchar nama_pic
+        -varchar no_hp
+        -varchar email
+        -varchar kategori_suplai
+        -varchar termin_default
+        -varchar nama_bank
+        -varchar no_rekening
+        -text catatan
+        -varchar status
+        +tambahSupplier()
+        +ubahSupplier()
+        +nonaktifkanSupplier()
+    }
+
+    class Kategori {
+        +bigint id
+        -varchar prefix_sku
+        -varchar nama_kategori
+        -text deskripsi
+        +tambahKategori()
+        +ubahKategori()
+        +hapusKategori()
+    }
+
+    class User {
+        +bigint id
+        -varchar name
+        -varchar email
+        -enum role
+        -timestamp email_verified_at
+        -varchar password
+        +login()
+        +logout()
+        +updateProfile()
+    }
+
+    class Product {
+        +bigint id
+        -bigint kategori_id
+        -varchar sku
+        -varchar barcode
+        -varchar nama_barang
+        -int stok
+        -int lead_time_hari
+        -enum tipe_safety_stock
+        -int safety_stock
+        -int reorder_point
+        -bigint harga_beli
+        -bigint harga_jual
+        -varchar satuan
+        +checkStok()
+        +updateStok()
+        +generateSKU()
+    }
+
+    class Transaction {
+        +bigint id
+        -varchar no_transaksi
+        -enum jenis_transaksi
+        -date tanggal
+        -bigint supplier_id
+        -bigint user_id
+        -varchar no_referensi
+        -varchar tujuan
+        -varchar kategori_keluar
+        -date estimasi_datang
+        -varchar tipe_pembayaran
+        -varchar info_pengiriman
+        -decimal total_nilai
+        -text catatan
+        -enum status
+        +buatTransaksi()
+        +updateStatus()
+        +hitungTotal()
+    }
+
+    class TransactionItem {
+        +bigint id
+        -bigint transaction_id
+        -bigint product_id
+        -int qty
+        -int qty_rusak
+        -decimal harga_satuan
+        -decimal diskon
+        -decimal subtotal
+        -varchar spesifikasi
+        -date tgl_expired
+        +tambahItem()
+        +hitungSubtotal()
+    }
+
+    class StockOpname {
+        +bigint id
+        -varchar no_opname
+        -date tanggal
+        -varchar periode
+        -bigint dibuat_oleh
+        -bigint disetujui_oleh
+        -enum status
+        -text catatan
+        +buatOpname()
+        +setujuiOpname()
+        +tolakOpname()
+    }
+
+    class StockOpnameDetail {
+        +bigint id
+        -bigint stock_opname_id
+        -bigint product_id
+        -int stok_sistem
+        -int stok_fisik
+        -int selisih
+        -bigint harga_pokok_snapshot
+        -bigint nilai_selisih
+        -varchar keterangan
+        +tambahDetail()
+        +hitungSelisih()
+    }
+
+    class Message {
+        +bigint id
+        -bigint from_user_id
+        -text content
+        +kirimPesan()
+        +hapusPesan()
+    }
+
+    class MessageRead {
+        +bigint id
+        -bigint message_id
+        -bigint user_id
+        +tandaiDibaca()
+    }
+
+    class StoreProfile {
+        +bigint id
+        -varchar nama_toko
+        -varchar tagline
+        -text alamat
+        -varchar telepon
+        -varchar email
+        -varchar kota_ttd
+        -varchar nama_kepala_gudang
+        -tinyint is_active
+        +updateProfil()
+    }
+
+    class KategoriOutbound {
+        +bigint id
+        -varchar nama_kategori
+        +tambahKategori()
+    }
+
+    %% JALUR 1: KATEGORI → PRODUK → DETAIL
+    Kategori "1" -- "0..*" Product
+    Product "1" -- "0..*" TransactionItem
+    Product "1" -- "0..*" StockOpnameDetail
+
+    %% JALUR 2: SUPPLIER & USER → TRANSAKSI → ITEM
+    Supplier "1" -- "0..*" Transaction
+    User "1" -- "0..*" Transaction
+    Transaction "1" *-- "1..*" TransactionItem
+
+    %% JALUR 3: USER → OPNAME → DETAIL
+    User "1" -- "0..*" StockOpname : dibuat
+    User "1" -- "0..*" StockOpname : disetujui
+    StockOpname "1" *-- "1..*" StockOpnameDetail
+
+    %% JALUR 4: USER → CHAT
+    User "1" -- "0..*" Message
+    User "1" -- "0..*" MessageRead
+    Message "1" *-- "0..*" MessageRead

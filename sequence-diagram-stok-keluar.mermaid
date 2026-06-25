@@ -1,0 +1,47 @@
+sequenceDiagram
+    autonumber
+    actor Petugas
+    participant Halaman as HalamanStokKeluar
+    participant Controller as StokKeluarController
+    participant Transaksi as Transaction
+    participant Item as TransactionItem
+    participant Produk as Product
+
+    Petugas->>+Halaman: Buka halaman stok keluar
+    Halaman->>+Controller: index()
+    Controller-->>Halaman: Kirim data produk & kategori
+    Halaman-->>Petugas: Tampilkan form & riwayat
+
+    Petugas->>+Halaman: Pilih kategori, isi produk & qty
+    Petugas->>Halaman: Klik "Simpan"
+    Halaman->>+Controller: store(request)
+
+    Controller->>Controller: Generate nomor transaksi BK-...
+    Controller->>+Transaksi: Buat header (jenis=keluar, status=selesai)
+    Transaksi-->>-Controller: Header tersimpan
+
+    loop Setiap produk yang dipilih
+        Controller->>+Produk: lockForUpdate(id)
+        Produk-->>-Controller: Data produk
+
+        alt Stok < qty
+            Controller-->>Halaman: Gagal: stok tidak cukup
+            Halaman-->>Petugas: Tampilkan pesan error
+        else Stok >= qty
+            Controller->>+Item: Simpan detail transaksi
+            Item-->>-Controller: Item tersimpan
+            Controller->>+Produk: Kurangi stok (stok - qty)
+            Produk-->>-Controller: Stok diperbarui
+
+            alt Stok baru <= reorder_point
+                Controller->>Controller: Kirim email notifikasi stok menipis
+            end
+        end
+    end
+
+    Controller->>+Transaksi: Update total_nilai
+    Transaksi-->>-Controller: Total diperbarui
+    Controller->>Controller: Dispatch event StockOutCreated
+
+    Controller-->>-Halaman: Redirect ke halaman cetak
+    Halaman-->>Petugas: Tampilkan nota cetak

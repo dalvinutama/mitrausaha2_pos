@@ -1,0 +1,68 @@
+sequenceDiagram
+    autonumber
+    actor Petugas
+    actor Pemilik
+    participant Halaman as HalamanOpname
+    participant Controller as StockOpnameController
+    participant Produk as Product
+    participant Opname as StockOpname
+    participant Detail as StockOpnameDetail
+    participant Transaksi as Transaction
+
+    Petugas->>+Halaman: Buka halaman stok opname
+    Halaman->>+Controller: index()
+    Controller-->>Halaman: Kirim data produk & riwayat opname
+    Halaman-->>Petugas: Tampilkan form input & tabel riwayat
+
+    rect rgb(235, 245, 255)
+        Note over Petugas,Transaksi: Buat Draft Opname
+
+        Petugas->>Halaman: Masukkan stok fisik setiap produk
+        Petugas->>Halaman: Klik "Simpan Draft"
+        Halaman->>+Controller: store(request)
+
+        Controller->>+Opname: Buat header (no_opname, pending_approval)
+        Opname-->>-Controller: Header tersimpan
+
+        loop Setiap produk yang diinput
+            Controller->>Produk: Ambil stok sistem
+            Controller->>Controller: Hitung selisih & nilai selisih
+            Controller->>+Detail: Simpan detail opname
+            Detail-->>-Controller: Detail tersimpan
+        end
+
+        Controller-->>Halaman: Redirect sukses
+        Halaman-->>Petugas: Notifikasi draft menunggu persetujuan
+    end
+
+    rect rgb(255, 250, 235)
+        Note over Pemilik,Transaksi: Approve / Reject Opname
+
+        Pemilik->>Halaman: Buka halaman opname
+        Halaman-->>Pemilik: Tampilkan draft yang menunggu
+
+        Pemilik->>Halaman: Klik "Setujui"
+        Halaman->>+Controller: approve(id)
+
+        loop Setiap detail opname
+            Controller->>Produk: Update stok = stok_fisik
+            Produk-->>Controller: Stok diperbarui
+            alt Selisih > 0
+                Controller->>+Transaksi: Catat penyesuaian masuk (ADJ-IN)
+                Transaksi-->>-Controller: Transaksi masuk tersimpan
+            else Selisih < 0
+                Controller->>+Transaksi: Catat penyesuaian keluar (ADJ-OUT)
+                Transaksi-->>-Controller: Transaksi keluar tersimpan
+            end
+        end
+
+        Controller->>Opname: Update status = approved
+        Controller-->>Halaman: Redirect sukses
+        Halaman-->>Pemilik: Notifikasi stok master diperbarui
+
+        Pemilik->>Halaman: Klik "Tolak"
+        Halaman->>+Controller: reject(id)
+        Controller->>Opname: Update status = rejected
+        Controller-->>Halaman: Redirect sukses
+        Halaman-->>Pemilik: Notifikasi opname ditolak
+    end

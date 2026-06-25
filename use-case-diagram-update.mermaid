@@ -1,0 +1,89 @@
+```mermaid
+usecaseDiagram
+  actor "Owner" as O
+  actor "Admin" as A
+  actor "Gudang" as G
+  actor "Penjualan" as P
+  actor "Pengiriman" as IRM
+  actor "Kasir" as K
+
+  usecase "UC1\nLogin / Logout" as UC1
+  usecase "UC2\nLihat Dashboard" as UC2
+  usecase "UC3\nKelola Produk" as UC3
+  usecase "UC4\nKelola Kategori" as UC4
+  usecase "UC5\nKelola Supplier" as UC5
+  usecase "UC6\nKelola Stok Masuk" as UC6
+  usecase "UC7\nKelola Stok Keluar" as UC7
+  usecase "UC8\nKelola Purchase Order" as UC8
+  usecase "UC9\nKelola Stock Opname" as UC9
+  usecase "UC10\nKelola Pembayaran" as UC10
+  usecase "UC11\nKelola Pengiriman" as UC11
+  usecase "UC12\nKelola Pengguna" as UC12
+  usecase "UC13\nKelola Pengaturan" as UC13
+  usecase "UC14\nLihat & Ekspor Laporan" as UC14
+  usecase "UC15\nChat Internal" as UC15
+  usecase "UC16\nPencarian Global" as UC16
+
+  O --> UC1
+  O --> UC2
+  O --> UC3
+  O --> UC4
+  O --> UC5
+  O --> UC6
+  O --> UC7
+  O --> UC8
+  O --> UC9
+  O --> UC10
+  O --> UC11
+  O --> UC12
+  O --> UC13
+  O --> UC14
+  O --> UC15
+  O --> UC16
+
+  A --> UC1
+  A --> UC2
+  A --> UC3
+  A --> UC4
+  A --> UC5
+  A --> UC6
+  A --> UC7
+  A --> UC8
+  A --> UC9
+  A --> UC10
+  A --> UC11
+  A --> UC12
+  A --> UC13
+  A --> UC14
+  A --> UC15
+  A --> UC16
+
+  G --> UC1
+  G --> UC2
+  G --> UC3
+  G --> UC4
+  G --> UC5
+  G --> UC6
+  G --> UC9
+  G --> UC11
+  G --> UC15
+  G --> UC16
+
+  P --> UC1
+  P --> UC2
+  P --> UC7
+  P --> UC15
+  P --> UC16
+
+  IRM --> UC1
+  IRM --> UC2
+  IRM --> UC11
+  IRM --> UC15
+  IRM --> UC16
+
+  K --> UC1
+  K --> UC2
+  K --> UC10
+  K --> UC15
+  K --> UC16
+```

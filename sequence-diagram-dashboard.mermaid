@@ -1,0 +1,40 @@
+sequenceDiagram
+    autonumber
+    actor Pengguna
+    participant Halaman as HalamanDashboard
+    participant Controller as DashboardController
+    participant Service as DashboardService
+    participant Produk as Product
+    participant Transaksi as Transaction
+
+    Pengguna->>+Halaman: Buka halaman dashboard
+    Halaman->>+Controller: index(period)
+    Controller->>Controller: Tentukan periode (default: bulan ini)
+    
+    Controller->>+Service: getAset()
+    Service-->>-Controller: Total aset & detail
+    Controller->>+Service: getBarangRusak(start, end)
+    Service-->>-Controller: Barang rusak periode
+    Controller->>+Service: getPoAktif(start, end)
+    Service-->>-Controller: PO aktif periode
+    Controller->>+Service: getHutang()
+    Service-->>-Controller: Hutang tempo & detail
+    Controller->>+Service: getKategoriTerlaris(start, end)
+    Service-->>-Controller: Kategori terlaris
+    Controller->>+Service: getChartData()
+    Service-->>-Controller: Data chart mingguan & bulanan
+
+    Controller->>+Transaksi: Transaksi terbaru (5 data)
+    Transaksi-->>-Controller: Data transaksi
+    Controller->>+Produk: Dead stock (stok>0, 6 bln tidak bergerak)
+    Produk-->>-Controller: Data dead stock
+    Controller->>+Produk: Stok menipis (stok<5, 3 data)
+    Produk-->>-Controller: Data stok menipis
+
+    Controller-->>Halaman: Kirim semua data dashboard
+    Halaman-->>Pengguna: Tampilkan widget aset, PO, hutang, chart, stok menipis
+
+    Pengguna->>Halaman: Ubah filter periode
+    Halaman->>+Controller: index(period baru)
+    Controller-->>-Halaman: Data dashboard diperbarui
+    Halaman-->>Pengguna: Tampilkan widget sesuai periode

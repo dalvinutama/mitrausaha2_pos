@@ -1,0 +1,171 @@
+```mermaid
+classDiagram
+    direction TB
+
+    class User {
+        +bigint id
+        -string name
+        -string email
+        -string password
+        -enum role
+        -timestamp email_verified_at
+        -timestamp created_at
+        -timestamp updated_at
+    }
+
+    class Product {
+        +bigint id
+        -bigint kategori_id
+        -string sku
+        -string barcode
+        -string nama_barang
+        -integer stok
+        -integer lead_time_hari
+        -enum tipe_safety_stock
+        -integer safety_stock
+        -integer reorder_point
+        -bigInteger harga_beli
+        -bigInteger harga_jual
+        -string satuan
+        -timestamp created_at
+        -timestamp updated_at
+    }
+
+    class Kategori {
+        +bigint id
+        -string prefix_sku
+        -string nama_kategori
+        -text deskripsi
+        -timestamp created_at
+        -timestamp updated_at
+    }
+
+    class Supplier {
+        +bigint id
+        -string nama_supplier
+        -text alamat
+        -string nama_pic
+        -string no_hp
+        -string email
+        -string kategori_suplai
+        -string termin_default
+        -string nama_bank
+        -string no_rekening
+        -text catatan
+        -string status
+        -timestamp created_at
+        -timestamp updated_at
+    }
+
+    class Transaction {
+        +bigint id
+        -string no_transaksi
+        -enum jenis_transaksi
+        -date tanggal
+        -bigint supplier_id
+        -bigint user_id
+        -string no_referensi
+        -string tujuan
+        -string kategori_keluar
+        -date estimasi_datang
+        -string tipe_pembayaran
+        -string info_pengiriman
+        -decimal total_nilai
+        -text catatan
+        -enum status
+        -timestamp created_at
+        -timestamp updated_at
+    }
+
+    class TransactionItem {
+        +bigint id
+        -bigint transaction_id
+        -bigint product_id
+        -integer qty
+        -integer qty_rusak
+        -decimal harga_satuan
+        -decimal diskon
+        -decimal subtotal
+        -string spesifikasi
+        -date tgl_expired
+        -timestamp created_at
+        -timestamp updated_at
+    }
+
+    class StockOpname {
+        +bigint id
+        -string no_opname
+        -date tanggal
+        -string periode
+        -bigint dibuat_oleh
+        -bigint disetujui_oleh
+        -enum status
+        -text catatan
+        -timestamp created_at
+        -timestamp updated_at
+    }
+
+    class StockOpnameDetail {
+        +bigint id
+        -bigint stock_opname_id
+        -bigint product_id
+        -integer stok_sistem
+        -integer stok_fisik
+        -integer selisih
+        -bigInteger harga_pokok_snapshot
+        -bigInteger nilai_selisih
+        -string keterangan
+        -timestamp created_at
+        -timestamp updated_at
+    }
+
+    class Message {
+        +bigint id
+        -bigint from_user_id
+        -text content
+        -timestamp created_at
+        -timestamp updated_at
+    }
+
+    class MessageRead {
+        +bigint id
+        -bigint message_id
+        -bigint user_id
+        -timestamp created_at
+        -timestamp updated_at
+    }
+
+    class StoreProfile {
+        +bigint id
+        -string nama_toko
+        -string tagline
+        -text alamat
+        -string telepon
+        -string email
+        -string kota_ttd
+        -string nama_kepala_gudang
+        -boolean is_active
+        -timestamp created_at
+        -timestamp updated_at
+    }
+
+    class KategoriOutbound {
+        +bigint id
+        -string nama_kategori
+        -timestamp created_at
+        -timestamp updated_at
+    }
+
+    Kategori "1" --> "0..*" Product
+    Supplier "1" --> "0..*" Transaction
+    User "1" --> "0..*" Transaction
+    User "1" --> "0..*" StockOpname : dibuat
+    User "1" --> "0..*" StockOpname : disetujui
+    User "1" --> "0..*" Message
+    User "1" --> "0..*" MessageRead
+    Transaction "1" *-- "1..*" TransactionItem
+    StockOpname "1" *-- "1..*" StockOpnameDetail
+    Message "1" *-- "0..*" MessageRead
+    Product "1" --> "0..*" TransactionItem
+    Product "1" --> "0..*" StockOpnameDetail
+```

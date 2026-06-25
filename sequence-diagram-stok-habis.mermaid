@@ -1,0 +1,46 @@
+sequenceDiagram
+    autonumber
+    actor Pengguna
+    participant Sistem
+    participant Produk as Product
+    participant Mail as Mail
+    participant Dashboard
+
+    rect rgb(255, 240, 240)
+        Note over Pengguna,Dashboard: Peringatan Otomatis Saat Transaksi Keluar
+
+        Sistem->>+Produk: Kurangi stok barang (transaksi keluar)
+        Produk-->>-Sistem: Stok baru
+
+        alt Stok baru <= reorder_point
+            Sistem->>Sistem: Cek cache notifikasi (24 jam)
+            alt Belum pernah dikirim
+                Sistem->>+Mail: Kirim email peringatan ke Owner/Admin
+                Mail-->>-Sistem: Email terkirim
+                Sistem->>Sistem: Simpan cache (cooldown 24 jam)
+            else Sudah dikirim
+                Sistem->>Sistem: Lewati (dalam masa cooldown)
+            end
+        end
+    end
+
+    rect rgb(255, 250, 235)
+        Note over Pengguna,Dashboard: Lihat Peringatan di Dashboard
+
+        Pengguna->>+Dashboard: Buka halaman dashboard
+        Dashboard->>+Produk: Cari produk dengan stok < 5
+        Produk-->>-Dashboard: Data produk stok menipis
+        Dashboard-->>Pengguna: Tampilkan widget stok menipis (max 3 produk)
+
+        Pengguna->>Dashboard: Klik notifikasi stok menipis
+        Dashboard-->>Pengguna: Redirect ke halaman purchase order
+    end
+
+    rect rgb(235, 245, 255)
+        Note over Pengguna,Dashboard: Fitur Reorder Point (ROP)
+
+        Pengguna->>Dashboard: Lihat halaman dashboard
+        Dashboard->>+Produk: Cari produk dengan stok <= reorder_point
+        Produk-->>-Dashboard: Data produk kritis
+        Dashboard-->>Pengguna: Tampilkan peringatan pada widget aset
+    end

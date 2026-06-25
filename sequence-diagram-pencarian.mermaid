@@ -1,0 +1,43 @@
+sequenceDiagram
+    autonumber
+    actor Pengguna
+    participant Navbar as NavbarHeader
+    participant Controller as SearchController
+    participant Produk as Product
+    participant Pemasok as Supplier
+    participant Transaksi as Transaction
+
+    Pengguna->>+Navbar: Ketik kata kunci pada kolom pencarian
+    Navbar->>Navbar: Kirim request AJAX (setiap ketikan)
+
+    alt Pencarian Live (AJAX)
+        Navbar->>+Controller: index(keyword)
+        Controller->>+Produk: Cari berdasarkan nama, SKU, barcode
+        Produk-->>-Controller: Hasil produk (max 4)
+        Controller->>+Pemasok: Cari berdasarkan nama, PIC, alamat
+        Pemasok-->>-Controller: Hasil supplier (max 3)
+        Controller->>+Transaksi: Cari berdasarkan no_transaksi, referensi, catatan
+        Transaksi-->>-Controller: Hasil transaksi (max 3)
+        Controller-->>Navbar: Kirim JSON hasil pencarian
+        Navbar-->>Pengguna: Tampilkan dropdown hasil live search
+    end
+
+    Pengguna->>Navbar: Tekan Enter
+    Navbar->>+Controller: index(keyword)
+
+    Controller->>+Produk: Cari berdasarkan nama, SKU, barcode
+    Produk-->>-Controller: Semua produk cocok
+    Controller->>+Pemasok: Cari berdasarkan nama, PIC, alamat
+    Pemasok-->>-Controller: Semua supplier cocok
+    Controller->>+Transaksi: Cari berdasarkan no_transaksi, referensi, catatan, tujuan
+    Transaksi-->>-Controller: Semua transaksi cocok
+
+    Controller-->>Navbar: Kirim halaman hasil pencarian
+    Navbar-->>Pengguna: Tampilkan hasil lengkap (produk, supplier, transaksi)
+
+    alt Tidak ada hasil
+        Navbar-->>Pengguna: Tampilkan pesan "Data tidak ditemukan"
+    end
+
+    Pengguna->>Navbar: Klik salah satu hasil
+    Navbar-->>Pengguna: Redirect ke halaman terkait (persediaan/supplier)

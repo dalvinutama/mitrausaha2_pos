@@ -1,0 +1,115 @@
+```mermaid
+graph TB
+  %% Actors
+  Owner((Owner))
+  Admin((Admin))
+  Gudang((Gudang))
+  Penjualan((Penjualan))
+  Pengiriman((Pengiriman))
+  Kasir((Kasir))
+
+  %% ===== Use Cases =====
+
+  subgraph Autentikasi
+    UC1[Login / Logout]
+  end
+
+  subgraph Dashboard
+    UC2[Lihat Dashboard Analitik]
+  end
+
+  subgraph "Manajemen Produk"
+    UC3[Lihat Daftar Produk]
+    UC4[Tambah / Edit / Hapus Produk]
+  end
+
+  subgraph "Manajemen Kategori"
+    UC5[Lihat Kategori]
+    UC6[Tambah / Edit / Hapus Kategori]
+  end
+
+  subgraph "Manajemen Supplier"
+    UC7[Lihat Supplier]
+    UC8[Tambah / Edit / Hapus Supplier]
+  end
+
+  subgraph "Stok Masuk"
+    UC9[Input Stok Masuk]
+  end
+
+  subgraph "Stok Keluar"
+    UC10[Input Stok Keluar / Penjualan]
+  end
+
+  subgraph "Purchase Order"
+    UC11[Buat Draft PO]
+    UC12[Approve / Tolak PO]
+    UC13[Lihat Daftar PO]
+  end
+
+  subgraph "Stock Opname"
+    UC14[Buat Draft Opname]
+    UC15[Approve / Reject Opname]
+    UC16[Lihat Riwayat Opname]
+  end
+
+  subgraph "Pembayaran"
+    UC17[Catat Pembayaran]
+    UC18[Lihat Pembayaran]
+  end
+
+  subgraph "Pengiriman"
+    UC19[Update Status Pengiriman]
+    UC20[Lihat Pengiriman]
+  end
+
+  subgraph "Manajemen Pengguna"
+    UC21[Tambah / Edit / Hapus Pengguna]
+  end
+
+  subgraph "Pengaturan"
+    UC22[Pengaturan Aplikasi & Toko]
+  end
+
+  subgraph "Laporan"
+    UC23[Lihat & Ekspor Laporan]
+  end
+
+  subgraph "Fitur Umum"
+    UC24[Chat Internal]
+    UC25[Pencarian Global]
+  end
+
+  %% ===== Relasi Actor ke Use Case =====
+
+  %% Owner — akses penuh
+  Owner --- UC1 & UC2 & UC3 & UC4 & UC5 & UC6 & UC7 & UC8
+  Owner --- UC9 & UC10 & UC11 & UC12 & UC13
+  Owner --- UC14 & UC15 & UC16 & UC17 & UC18
+  Owner --- UC19 & UC20 & UC21 & UC22 & UC23
+  Owner --- UC24 & UC25
+
+  %% Admin — hampir penuh (kecuali: tidak bisa kelola owner, dan tidak hapus akun sendiri)
+  Admin --- UC1 & UC2 & UC3 & UC4 & UC5 & UC6 & UC7 & UC8
+  Admin --- UC9 & UC10 & UC11 & UC12 & UC13
+  Admin --- UC14 & UC15 & UC16 & UC17 & UC18
+  Admin --- UC19 & UC20 & UC21 & UC22
+  Admin --- UC23 & UC24 & UC25
+
+  %% Gudang — fokus ke stok & gudang
+  Gudang --- UC1 & UC2 & UC3 & UC4 & UC5 & UC6
+  Gudang --- UC7 & UC9 & UC13 & UC14 & UC16
+  Gudang --- UC19 & UC20 & UC24 & UC25
+
+  %% Penjualan — fokus stok keluar
+  Penjualan --- UC1 & UC2 & UC3 & UC5
+  Penjualan --- UC10 & UC24 & UC25
+
+  %% Pengiriman — fokus pengiriman
+  Pengiriman --- UC1 & UC2 & UC19 & UC20
+  Pengiriman --- UC24 & UC25
+
+  %% Kasir — fokus pembayaran
+  Kasir --- UC1 & UC2 & UC3
+  Kasir --- UC17 & UC18 & UC24 & UC25
+```

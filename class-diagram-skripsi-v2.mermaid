@@ -1,0 +1,196 @@
+%%{init: {"theme": "default", "themeVariables": {"classPadding": 20, "nodeMargin": 60}}}%%
+classDiagram
+    direction TB
+
+    %% ==========================================
+    %% KELAS MASTER DATA
+    %% ==========================================
+    class Pemasok {
+        +bigint id
+        -varchar nama_pemasok
+        -text alamat
+        -varchar kontak
+        -varchar no_hp
+        -varchar email
+        -varchar kategori_suplai
+        -varchar termin_default
+        -varchar nama_bank
+        -varchar no_rekening
+        -text catatan
+        -enum status
+        +tambahPemasok()
+        +ubahPemasok()
+        +nonaktifkan()
+    }
+
+    class Pengguna {
+        +bigint id
+        -varchar nama
+        -varchar email
+        -enum role
+        -timestamp verifikasi_email
+        -varchar password
+        +masuk()
+        +keluar()
+        +perbaruiProfil()
+    }
+
+    class Kategori {
+        +bigint id
+        -varchar prefix_sku
+        -varchar nama_kategori
+        -text deskripsi
+        +tambah()
+        +ubah()
+        +hapus()
+    }
+
+    class Produk {
+        +bigint id
+        -bigint kategori_id
+        -varchar sku
+        -varchar barcode
+        -varchar nama_barang
+        -int stok
+        -int waktu_tunggu
+        -enum tipe_stok_aman
+        -int stok_aman
+        -int titik_pesan_ulang
+        -bigint harga_beli
+        -bigint harga_jual
+        -varchar satuan
+        +cekStok()
+        +perbaruiStok()
+        +generateSKU()
+    }
+
+    %% ==========================================
+    %% KELAS TRANSAKSI
+    %% ==========================================
+    class Transaksi {
+        +bigint id
+        -varchar no_transaksi
+        -enum jenis
+        -date tanggal
+        -bigint pemasok_id
+        -bigint pengguna_id
+        -varchar no_referensi
+        -varchar tujuan
+        -varchar kategori_keluar
+        -date estimasi_datang
+        -varchar tipe_bayar
+        -varchar info_kirim
+        -decimal total_nilai
+        -text catatan
+        -enum status
+        +buat()
+        +perbaruiStatus()
+        +hitungTotal()
+    }
+
+    class ItemTransaksi {
+        +bigint id
+        -bigint transaksi_id
+        -bigint produk_id
+        -int qty
+        -int qty_rusak
+        -decimal harga_satuan
+        -decimal diskon
+        -decimal subtotal
+        -varchar spesifikasi
+        -date tgl_expired
+        +tambahItem()
+        +hitungSubtotal()
+    }
+
+    class StokOpname {
+        +bigint id
+        -varchar no_opname
+        -date tanggal
+        -varchar periode
+        -bigint dibuat_oleh
+        -bigint disetujui_oleh
+        -enum status
+        -text catatan
+        +buat()
+        +setujui()
+        +tolak()
+    }
+
+    class DetailStokOpname {
+        +bigint id
+        -bigint stok_opname_id
+        -bigint produk_id
+        -int stok_sistem
+        -int stok_fisik
+        -int selisih
+        -bigint harga_pokok
+        -bigint nilai_selisih
+        -varchar keterangan
+        +tambahDetail()
+        +hitungSelisih()
+    }
+
+    %% ==========================================
+    %% KELAS CHAT
+    %% ==========================================
+    class Pesan {
+        +bigint id
+        -bigint pengirim_id
+        -text konten
+        +kirim()
+        +hapus()
+    }
+
+    class BacaPesan {
+        +bigint id
+        -bigint pesan_id
+        -bigint pengguna_id
+        +tandaiBaca()
+    }
+
+    %% ==========================================
+    %% KELAS PENDUKUNG
+    %% ==========================================
+    class ProfilToko {
+        +bigint id
+        -varchar nama_toko
+        -varchar tagline
+        -text alamat
+        -varchar telepon
+        -varchar email
+        -varchar kota_ttd
+        -varchar kepala_gudang
+        -tinyint aktif
+        +perbarui()
+    }
+
+    class KategoriKeluar {
+        +bigint id
+        -varchar nama_kategori
+        +tambah()
+    }
+
+    %% ==========================================
+    %% RELASI
+    %% ==========================================
+    
+    %% Jalur Master → Produk
+    Kategori "1" --> "0..*" Produk
+    Produk "1" --> "0..*" ItemTransaksi
+    Produk "1" --> "0..*" DetailStokOpname
+
+    %% Jalur Pemasok & Pengguna → Transaksi
+    Pemasok "1" --> "0..*" Transaksi
+    Pengguna "1" --> "0..*" Transaksi
+    Transaksi "1" *-- "1..*" ItemTransaksi
+
+    %% Jalur Opname
+    Pengguna "1" --> "0..*" StokOpname : dibuat
+    Pengguna "1" --> "0..*" StokOpname : disetujui
+    StokOpname "1" *-- "1..*" DetailStokOpname
+
+    %% Jalur Chat
+    Pengguna "1" --> "0..*" Pesan
+    Pengguna "1" --> "0..*" BacaPesan
+    Pesan "1" *-- "0..*" BacaPesan

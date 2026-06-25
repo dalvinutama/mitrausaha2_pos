@@ -1,0 +1,81 @@
+sequenceDiagram
+    autonumber
+    actor Pengguna
+    actor Pemilik
+    participant Halaman as HalamanPO
+    participant Controller as POController
+    participant Transaksi as Transaction
+    participant Item as TransactionItem
+    participant Mail as Mail
+
+    Pengguna->>+Halaman: Buka halaman purchase order
+    Halaman->>+Controller: index()
+    Controller-->>Halaman: Kirim riwayat PO & data supplier/produk
+    Halaman-->>Pengguna: Tampilkan daftar PO & form pembuatan
+
+    rect rgb(235, 245, 255)
+        Note over Pengguna,Mail: Buat Purchase Order
+
+        Pengguna->>Halaman: Pilih supplier, barang, qty, harga
+        Pengguna->>Halaman: Klik "Simpan"
+        Halaman->>+Controller: store(request)
+
+        Controller->>Controller: Generate nomor PO-YYYYMMDD-XXXX
+        Controller->>+Transaksi: Buat header (jenis=po, status=pending)
+        Transaksi-->>-Controller: Header tersimpan
+
+        loop Setiap barang yang dipesan
+            Controller->>+Item: Simpan detail pesanan
+            Item-->>-Controller: Item tersimpan
+        end
+
+        Controller->>Controller: Hitung total nilai
+
+        alt Total <= limit auto-approve (Rp 5.000.000)
+            Controller->>Transaksi: Update status = approved
+            Transaksi-->>Controller: PO disetujui otomatis
+        else Total > limit auto-approve
+            Controller->>+Mail: Kirim email notifikasi ke Owner
+            Mail-->>-Controller: Email terkirim
+        end
+
+        Controller->>Controller: Dispatch PurchaseOrderCreated
+        Controller-->>Halaman: Redirect sukses
+        Halaman-->>Pengguna: Notifikasi PO berhasil dibuat
+    end
+
+    rect rgb(255, 250, 235)
+        Note over Pemilik,Mail: Setujui / Tolak PO
+
+        Pemilik->>Halaman: Buka halaman PO
+        Halaman-->>Pemilik: Tampilkan daftar PO (pending & riwayat)
+
+        Pemilik->>Halaman: Klik "Setujui" pada PO pending
+        Halaman->>+Controller: update(id)
+        alt Status bukan pending
+            Controller-->>Halaman: Error status sudah berubah
+        else
+            Controller->>Transaksi: Update status = approved
+            Controller->>Controller: Dispatch PurchaseOrderApproved
+            Controller-->>Halaman: Redirect sukses
+            Halaman-->>Pemilik: Notifikasi PO disetujui
+        end
+
+        Pemilik->>Halaman: Klik "Tolak" pada PO pending
+        Halaman->>+Controller: reject(id)
+        Controller->>Transaksi: Update status = rejected
+        Controller->>Controller: Dispatch PurchaseOrderRejected
+        Controller-->>Halaman: Redirect sukses
+        Halaman-->>Pemilik: Notifikasi PO ditolak
+    end
+
+    rect rgb(240, 240, 255)
+        Note over Pengguna,Halaman: Cetak PO
+
+        Pengguna->>Halaman: Klik "Cetak" pada PO
+        Halaman->>+Controller: print(id)
+        Controller->>+Transaksi: Ambil data PO & relasi
+        Transaksi-->>-Controller: Data PO
+        Controller-->>Halaman: Tampilkan halaman cetak
+        Halaman-->>Pengguna: Tampilkan PO siap cetak
+    end

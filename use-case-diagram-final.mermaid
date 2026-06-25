@@ -1,0 +1,181 @@
+```mermaid
+usecaseDiagram
+  title "Use Case Diagram — Sistem Manajemen Inventaris TbMitraUsaha"
+
+  %% ==================== ACTORS ====================
+  actor "Owner" as O
+  actor "Admin" as A
+  actor "Gudang" as G
+  actor "Penjualan" as P
+  actor "Kasir" as K
+  actor "Pengiriman" as IRM
+
+  %% ==================== USE CASES ====================
+  usercase "UC1\nLogin / Logout" as UC1
+  usercase "UC2\nLihat Dashboard Analitik" as UC2
+  usercase "UC3\nLihat Advanced Analytics" as UC3
+
+  usercase "UC4\nKelola Produk\n(Tambah/Edit/Hapus)" as UC4
+  usercase "UC5\nLihat Daftar Produk" as UC5
+
+  usercase "UC6\nKelola Kategori\n(Tambah/Edit/Hapus)" as UC6
+  usercase "UC7\nLihat Kategori" as UC7
+
+  usercase "UC8\nKelola Satuan\n(Tambah/Edit/Hapus)" as UC8
+  usercase "UC9\nLihat Satuan" as UC9
+
+  usercase "UC10\nKelola Supplier\n(Tambah/Edit/Hapus)" as UC10
+  usercase "UC11\nLihat Supplier" as UC11
+
+  usercase "UC12\nInput Stok Masuk" as UC12
+  usercase "UC13\nLihat Stok Masuk" as UC13
+
+  usercase "UC14\nInput Stok Keluar" as UC14
+  usercase "UC15\nLihat Stok Keluar" as UC15
+
+  usercase "UC16\nBuat Draft Purchase Order" as UC16
+  usercase "UC17\nApprove / Tolak PO" as UC17
+  usercase "UC18\nLihat Purchase Order" as UC18
+
+  usercase "UC19\nBuat Draft Stock Opname" as UC19
+  usercase "UC20\nApprove / Reject Stock Opname" as UC20
+  usercase "UC21\nLihat Riwayat Stock Opname" as UC21
+
+  usercase "UC22\nCatat Pembayaran" as UC22
+  usercase "UC23\nLihat Pembayaran" as UC23
+
+  usercase "UC24\nUpdate Status Pengiriman" as UC24
+  usercase "UC25\nLihat Pengiriman" as UC25
+
+  usercase "UC26\nKelola Pengguna\n(Tambah/Edit/Hapus)" as UC26
+  usercase "UC27\nLihat Audit Log" as UC27
+
+  usercase "UC28\nKelola Pengaturan Toko\n& AI Config" as UC28
+  usercase "UC29\nSelesaikan Hutang / Rusak" as UC29
+
+  usercase "UC30\nLihat & Ekspor Laporan" as UC30
+
+  usercase "UC31\nChat Internal" as UC31
+  usercase "UC32\nPencarian Global" as UC32
+  usercase "UC33\nNotifikasi Stok Menipis" as UC33
+
+  %% ==================== RELASI OWNER ====================
+  O --> UC1 : Login/Logout
+  O --> UC2 : Lihat Dashboard
+  O --> UC3 : Advanced Analytics
+  O --> UC4 : Kelola Produk
+  O --> UC5 : Lihat Produk
+  O --> UC6 : Kelola Kategori
+  O --> UC7 : Lihat Kategori
+  O --> UC8 : Kelola Satuan
+  O --> UC9 : Lihat Satuan
+  O --> UC10 : Kelola Supplier
+  O --> UC11 : Lihat Supplier
+  O --> UC12 : Input Stok Masuk
+  O --> UC13 : Lihat Stok Masuk
+  O --> UC14 : Input Stok Keluar
+  O --> UC15 : Lihat Stok Keluar
+  O --> UC16 : Buat Draft PO
+  O --> UC17 : Approve/Tolak PO
+  O --> UC18 : Lihat PO
+  O --> UC19 : Buat Draft Opname
+  O --> UC20 : Approve/Reject Opname
+  O --> UC21 : Lihat Opname
+  O --> UC22 : Catat Pembayaran
+  O --> UC23 : Lihat Pembayaran
+  O --> UC24 : Update Status Kirim
+  O --> UC25 : Lihat Pengiriman
+  O --> UC26 : Kelola Pengguna
+  O --> UC27 : Audit Log
+  O --> UC28 : Pengaturan Toko & AI
+  O --> UC29 : Selesaikan Hutang/Rusak
+  O --> UC30 : Laporan
+  O --> UC31 : Chat Internal
+  O --> UC32 : Pencarian Global
+  O --> UC33 : Notif Stok Menipis
+
+  %% ==================== RELASI ADMIN ====================
+  A --> UC1 : Login/Logout
+  A --> UC2 : Lihat Dashboard
+  A --> UC3 : Advanced Analytics
+  A --> UC4 : Kelola Produk
+  A --> UC5 : Lihat Produk
+  A --> UC6 : Kelola Kategori
+  A --> UC7 : Lihat Kategori
+  A --> UC8 : Kelola Satuan
+  A --> UC9 : Lihat Satuan
+  A --> UC10 : Kelola Supplier
+  A --> UC11 : Lihat Supplier
+  A --> UC12 : Input Stok Masuk
+  A --> UC13 : Lihat Stok Masuk
+  A --> UC15 : Lihat Stok Keluar
+  A --> UC16 : Buat Draft PO
+  A --> UC17 : Approve/Tolak PO
+  A --> UC18 : Lihat PO
+  A --> UC19 : Buat Draft Opname
+  A --> UC20 : Approve/Reject Opname
+  A --> UC21 : Lihat Opname
+  A --> UC23 : Lihat Pembayaran
+  A --> UC25 : Lihat Pengiriman
+  A --> UC26 : Kelola Pengguna
+  A --> UC27 : Audit Log
+  A --> UC29 : Selesaikan Hutang/Rusak
+  A --> UC30 : Laporan
+  A --> UC31 : Chat Internal
+  A --> UC32 : Pencarian Global
+  A --> UC33 : Notif Stok Menipis
+
+  %% ==================== RELASI GUDANG ====================
+  G --> UC1 : Login/Logout
+  G --> UC2 : Lihat Dashboard
+  G --> UC4 : Kelola Produk
+  G --> UC5 : Lihat Produk
+  G --> UC6 : Kelola Kategori
+  G --> UC7 : Lihat Kategori
+  G --> UC8 : Kelola Satuan
+  G --> UC9 : Lihat Satuan
+  G --> UC10 : Kelola Supplier
+  G --> UC11 : Lihat Supplier
+  G --> UC12 : Input Stok Masuk
+  G --> UC13 : Lihat Stok Masuk
+  G --> UC15 : Lihat Stok Keluar
+  G --> UC16 : Buat Draft PO
+  G --> UC18 : Lihat PO
+  G --> UC19 : Buat Draft Opname
+  G --> UC21 : Lihat Opname
+  G --> UC24 : Update Status Kirim
+  G --> UC25 : Lihat Pengiriman
+  G --> UC31 : Chat Internal
+  G --> UC32 : Pencarian Global
+  G --> UC33 : Notif Stok Menipis
+
+  %% ==================== RELASI PENJUALAN ====================
+  P --> UC1 : Login/Logout
+  P --> UC2 : Lihat Dashboard
+  P --> UC5 : Lihat Produk
+  P --> UC7 : Lihat Kategori
+  P --> UC14 : Input Stok Keluar
+  P --> UC15 : Lihat Stok Keluar
+  P --> UC31 : Chat Internal
+  P --> UC32 : Pencarian Global
+  P --> UC33 : Notif Stok Menipis
+
+  %% ==================== RELASI KASIR ====================
+  K --> UC1 : Login/Logout
+  K --> UC2 : Lihat Dashboard
+  K --> UC5 : Lihat Produk
+  K --> UC22 : Catat Pembayaran
+  K --> UC23 : Lihat Pembayaran
+  K --> UC31 : Chat Internal
+  K --> UC32 : Pencarian Global
+  K --> UC33 : Notif Stok Menipis
+
+  %% ==================== RELASI PENGIRIMAN ====================
+  IRM --> UC1 : Login/Logout
+  IRM --> UC2 : Lihat Dashboard
+  IRM --> UC24 : Update Status Kirim
+  IRM --> UC25 : Lihat Pengiriman
+  IRM --> UC31 : Chat Internal
+  IRM --> UC32 : Pencarian Global
+  IRM --> UC33 : Notif Stok Menipis
+```

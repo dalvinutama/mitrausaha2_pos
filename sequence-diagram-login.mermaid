@@ -1,0 +1,31 @@
+sequenceDiagram
+    participant Pengguna
+    participant Sistem
+    participant Database
+
+    Pengguna->>Sistem: Membuka halaman login
+    Sistem->>Pengguna: Menampilkan form login (email & password)
+
+    Pengguna->>Sistem: Memasukkan email dan password
+    Pengguna->>Sistem: Menekan tombol "Masuk"
+
+    alt Kredensial Valid
+        Sistem->>Sistem: Memvalidasi input (email wajib, password wajib)
+        Sistem->>Sistem: Memeriksa batas percobaan login (max 5x)
+        Sistem->>Database: Mencocokkan email dan password
+        Database->>Sistem: Data cocok
+        Sistem->>Sistem: Membersihkan riwayat percobaan gagal
+        Sistem->>Sistem: Membuat session baru
+        Sistem->>Sistem: Meregenerasi token CSRF
+        Sistem->>Pengguna: Redirect ke halaman dashboard
+    else Kredensial Tidak Valid
+        Sistem->>Sistem: Memvalidasi input (email wajib, password wajib)
+        Sistem->>Database: Mencocokkan email dan password
+        Database->>Sistem: Data tidak cocok
+        Sistem->>Sistem: Mencatat percobaan gagal (rate limiter)
+        Sistem->>Pengguna: Menampilkan pesan error "Email atau password salah"
+    else Terlalu Banyak Percobaan
+        Sistem->>Sistem: Memeriksa batas percobaan login (max 5x)
+        Sistem->>Sistem: Mendeteksi melebihi batas percobaan
+        Sistem->>Pengguna: Menampilkan pesan "Terlalu banyak percobaan. Coba lagi dalam N detik"
+    end

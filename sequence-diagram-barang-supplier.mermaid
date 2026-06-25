@@ -1,0 +1,81 @@
+sequenceDiagram
+    autonumber
+    actor Pengguna
+    participant Halaman as HalamanMaster
+    participant Controller as MasterController
+    participant Kategori as Kategori
+    participant Produk as Product
+    participant Pemasok as Supplier
+    participant Inventory as InventoryService
+
+    Pengguna->>+Halaman: Buka halaman master data
+    Halaman-->>Pengguna: Tampilkan menu Barang & Supplier
+
+    rect rgb(235, 245, 255)
+        Note over Pengguna,Inventory: Kelola Data Barang
+
+        Pengguna->>Halaman: Buka halaman persediaan
+        Halaman->>+Controller: index()
+        Controller->>+Kategori: Ambil kategori
+        Controller->>+Produk: Ambil semua produk
+        Produk-->>-Controller: Data barang & stok
+        Controller-->>Halaman: Kirim produk, kategori, satuan
+        Halaman-->>Pengguna: Tampilkan daftar barang
+
+        Pengguna->>Halaman: Klik "Tambah Barang"
+        Halaman-->>Pengguna: Form tambah barang
+        Pengguna->>Halaman: Isi data & klik "Simpan"
+        Halaman->>+Controller: store(request)
+        Controller->>+Kategori: Ambil prefix SKU
+        Kategori-->>-Controller: prefix_sku
+        Controller->>Controller: Generate SKU (prefix-XXX)
+        Controller->>+Produk: Simpan barang (stok=0)
+        Produk-->>-Controller: Barang tersimpan
+        Controller->>+Inventory: Hitung ROP & EOQ
+        Inventory-->>-Controller: ROP & EOQ diperbarui
+        Controller-->>Halaman: Redirect sukses
+        Halaman-->>Pengguna: Notifikasi & SKU baru
+
+        Pengguna->>Halaman: Klik "Edit" & ubah data
+        Halaman->>+Controller: update(request, id)
+        Controller->>Produk: Perbarui data
+        Controller->>+Inventory: Hitung ulang ROP & EOQ
+        Inventory-->>-Controller: ROP & EOQ diperbarui
+        Controller-->>Halaman: Redirect sukses
+        Halaman-->>Pengguna: Notifikasi sukses
+    end
+
+    rect rgb(240, 255, 240)
+        Note over Pengguna,Pemasok: Kelola Data Supplier
+
+        Pengguna->>Halaman: Buka halaman supplier
+        Halaman->>+Controller: index()
+        Controller->>+Pemasok: Ambil semua supplier
+        Controller->>Controller: Hitung metrik ringkasan
+        Pemasok-->>-Controller: Data supplier
+        Controller-->>Halaman: Kirim supplier & metrik
+        Halaman-->>Pengguna: Tampilkan daftar supplier
+
+        Pengguna->>Halaman: Klik "Tambah Supplier"
+        Halaman-->>Pengguna: Form tambah supplier
+        Pengguna->>Halaman: Isi data & klik "Simpan"
+        Halaman->>+Controller: store(request)
+        Controller->>+Pemasok: Simpan data baru (status=Aktif)
+        Pemasok-->>-Controller: Supplier tersimpan
+        Controller-->>Halaman: Redirect sukses
+        Halaman-->>Pengguna: Notifikasi sukses
+
+        Pengguna->>Halaman: Klik "Edit" & ubah data
+        Halaman->>+Controller: update(request, id)
+        Controller->>Pemasok: Perbarui data
+        Pemasok-->>Controller: Data diperbarui
+        Controller-->>Halaman: Redirect sukses
+        Halaman-->>Pengguna: Notifikasi sukses
+
+        Pengguna->>Halaman: Klik "Hapus" supplier
+        Halaman->>+Controller: destroy(id)
+        Controller->>Pemasok: Hapus data
+        Pemasok-->>Controller: Data terhapus
+        Controller-->>Halaman: Redirect sukses
+        Halaman-->>Pengguna: Notifikasi sukses
+    end

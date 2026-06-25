@@ -1,0 +1,71 @@
+sequenceDiagram
+    autonumber
+    actor Pengirim
+    actor Penerima
+    participant Halaman as HalamanChat
+    participant Controller as MessageController
+    participant Pesan as Message
+    participant Baca as MessageRead
+
+    Pengirim->>+Halaman: Buka halaman chat / klik ikon pesan
+    Halaman->>+Controller: getConversations()
+    Controller-->>Halaman: Daftar obrolan
+    Halaman-->>Pengirim: Tampilkan sidebar obrolan & pesan
+
+    rect rgb(235, 245, 255)
+        Note over Pengirim,Baca: Kirim Pesan
+
+        Pengirim->>Halaman: Ketik pesan atau pilih file lampiran
+        Pengirim->>Halaman: Klik "Kirim"
+        Halaman->>+Controller: store(request)
+        Controller->>+Pesan: Simpan pesan baru
+        Pesan-->>-Controller: Pesan tersimpan
+        alt Ada lampiran file
+            Controller->>Controller: Upload & simpan lampiran
+        end
+        Controller-->>Halaman: Kirim data pesan (AJAX)
+        Halaman-->>Pengirim: Tampilkan pesan pada obrolan
+        Halaman-->>Penerima: Tampilkan pesan baru (real-time sync)
+    end
+
+    rect rgb(255, 250, 235)
+        Note over Pengirim,Baca: Edit & Hapus Pesan
+
+        Pengirim->>Halaman: Klik "Edit" pada pesan milik sendiri
+        Halaman-->>Pengirim: Form edit pesan
+        Pengirim->>Halaman: Ubah teks & simpan
+        Halaman->>+Controller: update(request, id)
+        alt Bukan pemilik pesan
+            Controller-->>Halaman: Abaikan
+        else Pemilik pesan
+            Controller->>Pesan: Perbarui konten
+            Pesan-->>Controller: Konten diperbarui
+            Controller-->>Halaman: Sukses
+            Halaman-->>Pengirim: Pesan diperbarui
+        end
+
+        Pengirim->>Halaman: Klik "Hapus" pada pesan milik sendiri
+        Halaman->>+Controller: destroy(id)
+        alt Bukan pemilik pesan
+            Controller-->>Halaman: Abaikan
+        else Pemilik pesan
+            Controller->>Pesan: Hapus pesan
+            Pesan-->>Controller: Pesan terhapus
+            Controller-->>Halaman: Sukses
+            Halaman-->>Pengirim: Pesan terhapus
+        end
+    end
+
+    rect rgb(240, 255, 240)
+        Note over Penerima,Baca: Tandai Sudah Dibaca
+
+        Penerima->>+Controller: markAsRead()
+        Controller->>+Baca: Catat status baca (bulk insert)
+        Baca-->>-Controller: Status tersimpan
+        Controller-->>Penerima: Notifikasi baca terkirim
+
+        Penerima->>+Controller: sync(last_id)
+        Controller->>+Pesan: Ambil pesan baru
+        Pesan-->>-Controller: Pesan baru
+        Controller-->>Penerima: Kirim pesan baru & status baca
+    end

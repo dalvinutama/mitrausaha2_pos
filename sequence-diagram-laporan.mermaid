@@ -1,0 +1,45 @@
+sequenceDiagram
+    autonumber
+    actor Pengguna
+    participant Halaman as HalamanLaporan
+    participant Controller as LaporanController
+    participant Produk as Product
+    participant Item as TransactionItem
+    participant Opname as StockOpnameDetail
+    participant Export as SpreadsheetPDF
+
+    Pengguna->>+Halaman: Buka halaman laporan
+    Halaman->>+Controller: index(request)
+    Controller->>Controller: Set tanggal awal & akhir (default: bulan ini)
+    Controller->>+Produk: Ambil semua produk
+    Produk-->>-Controller: Data produk
+    loop Setiap produk
+        Controller->>+Item: Hitung stok awal (qty masuk - qty keluar)
+        Controller->>+Item: Hitung mutasi masuk periode
+        Controller->>+Item: Hitung mutasi keluar periode
+        Item-->>-Controller: Qty mutasi
+        Controller->>+Opname: Cari data stok fisik (jika ada)
+        Opname-->>-Controller: Stok fisik atau null
+        Controller->>Controller: Hitung stok sistem akhir & selisih
+    end
+    Controller-->>Halaman: Kirim data laporan
+    Halaman-->>Pengguna: Tampilkan tabel laporan mutasi & filter
+
+    Pengguna->>Halaman: Atur filter tanggal & kategori
+    Pengguna->>Halaman: Klik "Export Excel"
+    Halaman->>+Controller: exportExcel(request)
+    Controller->>Controller: Generate data laporan
+    Controller->>+Export: Buat spreadsheet dengan kop surat
+    Controller->>Export: Tulis header dua tingkat
+    Controller->>Export: Isi data & rumus Excel
+    Export-->>-Controller: File .xlsx siap
+    Controller-->>Halaman: Download file Excel
+    Halaman-->>Pengguna: File terunduh
+
+    Pengguna->>Halaman: Klik "Export PDF"
+    Halaman->>+Controller: exportPdf(request)
+    Controller->>Controller: Generate data laporan
+    Controller->>+Export: Load view PDF
+    Export-->>-Controller: File .pdf siap
+    Controller-->>Halaman: Download file PDF
+    Halaman-->>Pengguna: File terunduh
