@@ -4,8 +4,19 @@ set -e
 # Wait a moment for DB to be ready if it's starting up simultaneously
 echo "Starting Laravel initialization..."
 
-# Run migrations if environment allows
-php artisan migrate --force
+# Wait for DB and run migrations
+MAX_RETRIES=30
+RETRIES=0
+echo "Running migrations..."
+until php artisan migrate --force; do
+  if [ $RETRIES -ge $MAX_RETRIES ]; then
+    echo "Migrations failed after $MAX_RETRIES attempts."
+    exit 1
+  fi
+  echo "Database might not be ready. Retrying in 3 seconds..."
+  sleep 3
+  RETRIES=$((RETRIES+1))
+done
 
 # Clear caches and optimize
 php artisan optimize:clear
